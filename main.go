@@ -7,8 +7,26 @@ import (
 
 // Define a home handler function which weites a byte slice containing
 // "Hello from Snippetbox" as the response body.
-func home(w http.ResponseWriter, _ *http.Request) {
+func home(w http.ResponseWriter, r *http.Request) {
+	// Check if the current request URL path exactly matches "/". If it doesn't
+	// the http.NotFound() function to send a 404 response to the client.
+	// Importantly, we then return from the handler. If we don't return the hand
+	// would keep executing and also write the "Hello from SnippetBox" message.
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	w.Write([]byte("Hello from Snippetbox"))
+}
+
+// Add a showSnippet handler function
+func showSnippet(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte("Display a specific snippet ..."))
+}
+
+// Add a createSnippet handler function.
+func createSnippet(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte("Create a new snippet ..."))
 }
 
 func main() {
@@ -16,6 +34,8 @@ func main() {
 	// register the home function as the handler for the "/" URL pattern.
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
+	mux.HandleFunc("/snippet", showSnippet)
+	mux.HandleFunc("/snippet/create", createSnippet)
 	// Use the http.ListenAndServe() function to start a new web server. We pas
 	// two parameters: the TCP network address to listen on (in this case ":4000
 	// and the servemux we just created. If http.ListenAndServe() returns an er
@@ -33,3 +53,10 @@ func main() {
 
 // The log.Fatal() function will also call os.Exit(1) after writing the
 // message, causing the application to immediately exit.
+
+// Go Serve mux
+// Go’s servemux supports two different types of URL patterns: fixed paths
+// and subtree paths. Fixed paths don’t end with a trailing slash, whereas
+// subtree paths do end with a trailing slash.
+// http default servemux is global hence accessible by third party packages which could have
+// malicious intent
